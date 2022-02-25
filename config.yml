@@ -13,7 +13,7 @@ production: &base
     networks:
     - &rwx
       hostname: irc.rwx.im
-      nickname: meta
+      nickname: meta-oss
       secure: true
       port: 6697
       channels:
@@ -37,7 +37,7 @@ development:
   blur:
     networks:
     - hostname: irc.rwx.im
-      nickname: meta-dev
+      nickname: meta-oss-dev
       channels: 
       - "#blur"
       secure: true
