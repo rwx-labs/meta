@@ -1,0 +1,47 @@
+## Blur configuration file
+
+production: &base
+  ## Blur client settings
+  blur:
+    # Save cached script variables in this directory
+    cache_dir: cache/
+    # Where to look for scripts to be loaded
+    scripts_dir: scripts/
+
+    ## Network settings
+    # Set up a list of networks to connect to on start
+    networks:
+    - &rwx
+      hostname: irc.rwx.im
+      nickname: meta
+      secure: true
+      port: 6697
+      channels:
+      - "#uplink"
+
+  ## Script settings
+  scripts: &scripts
+    ## Admin authentication script settings
+    :auth:
+      # Set default admins (this will be cached once the script has loaded at
+      # least once, after that it's no longer used as long as the cache exists.)
+      #
+      # The format is a hostmask, i.e. `<nick>!<ident>@<host>`
+      :admins:
+      - mk!mk@rwx.im
+
+# Development-specific settings. This merges values with base (i.e. the
+# production configuration above.)
+development:
+  <<: *base
+  blur:
+    networks:
+    - hostname: irc.rwx.im
+      nickname: meta-dev
+      channels: 
+      - "#blur"
+      secure: true
+      port: 6697
+
+  scripts:
+    <<: *scripts

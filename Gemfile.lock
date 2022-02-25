@@ -1,0 +1,125 @@
+GIT
+  remote: https://github.com/mkroman/blur-text_helper
+  revision: 50bce81b56d1bb3f483214282708c57f9c6ad435
+  specs:
+    blur-text_helper (0.1.0)
+      activesupport (~> 6.0)
+
+GIT
+  remote: https://github.com/mkroman/blur-url_handling.git
+  revision: 8e166efd01fa9a33a980ebf6ed1e9678f787bf02
+  specs:
+    blur-url_handling (0.1)
+      blur (~> 2.0)
+
+PATH
+  remote: vendor/ordnet
+  specs:
+    ordnet (0.1)
+      nokogiri (~> 1.6)
+
+GEM
+  remote: https://rubygems.org/
+  specs:
+    activesupport (6.1.4.6)
+      concurrent-ruby (~> 1.0, >= 1.0.2)
+      i18n (>= 1.6, < 2)
+      minitest (>= 5.1)
+      tzinfo (~> 2.0)
+      zeitwerk (~> 2.3)
+    addressable (2.8.0)
+      public_suffix (>= 2.0.2, < 5.0)
+    ast (2.4.2)
+    backport (1.2.0)
+    benchmark (0.2.0)
+    blur (2.1.6)
+      deep_merge (~> 1.2)
+      eventmachine (~> 1.2)
+      ircparser (~> 0.6)
+    concurrent-ruby (1.1.9)
+    cookiejar (0.3.3)
+    deep_merge (1.2.2)
+    diff-lcs (1.5.0)
+    e2mmap (0.1.0)
+    em-http-request (1.1.7)
+      addressable (>= 2.3.4)
+      cookiejar (!= 0.3.1)
+      em-socksify (>= 0.3)
+      eventmachine (>= 1.0.3)
+      http_parser.rb (>= 0.6.0)
+    em-socksify (0.3.2)
+      eventmachine (>= 1.0.0.beta.4)
+    eventmachine (1.2.7)
+    http_parser.rb (0.8.0)
+    i18n (1.10.0)
+      concurrent-ruby (~> 1.0)
+    ircparser (0.7.0)
+    jaro_winkler (1.5.4)
+    kramdown (2.3.1)
+      rexml
+    kramdown-parser-gfm (1.1.0)
+      kramdown (~> 2.0)
+    minitest (5.15.0)
+    nokogiri (1.13.3-x86_64-linux)
+      racc (~> 1.4)
+    parallel (1.21.0)
+    parser (3.1.1.0)
+      ast (~> 2.4.1)
+    public_suffix (4.0.6)
+    racc (1.6.0)
+    rainbow (3.1.1)
+    regexp_parser (2.2.1)
+    reverse_markdown (2.1.1)
+      nokogiri
+    rexml (3.2.5)
+    rubocop (1.25.1)
+      parallel (~> 1.10)
+      parser (>= 3.1.0.0)
+      rainbow (>= 2.2.2, < 4.0)
+      regexp_parser (>= 1.8, < 3.0)
+      rexml
+      rubocop-ast (>= 1.15.1, < 2.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (>= 1.4.0, < 3.0)
+    rubocop-ast (1.16.0)
+      parser (>= 3.1.1.0)
+    ruby-progressbar (1.11.0)
+    solargraph (0.44.3)
+      backport (~> 1.2)
+      benchmark
+      bundler (>= 1.17.2)
+      diff-lcs (~> 1.4)
+      e2mmap
+      jaro_winkler (~> 1.5)
+      kramdown (~> 2.3)
+      kramdown-parser-gfm (~> 1.1)
+      parser (~> 3.0)
+      reverse_markdown (>= 1.0.5, < 3)
+      rubocop (>= 0.52)
+      thor (~> 1.0)
+      tilt (~> 2.0)
+      yard (~> 0.9, >= 0.9.24)
+    thor (1.2.1)
+    tilt (2.0.10)
+    tzinfo (2.0.4)
+      concurrent-ruby (~> 1.0)
+    unicode-display_width (2.1.0)
+    webrick (1.7.0)
+    yard (0.9.27)
+      webrick (~> 1.7.0)
+    zeitwerk (2.5.4)
+
+PLATFORMS
+  x86_64-linux
+
+DEPENDENCIES
+  blur (~> 2.1.6)
+  blur-text_helper!
+  blur-url_handling!
+  em-http-request (~> 1.1)
+  nokogiri (~> 1.10)
+  ordnet!
+  solargraph
+
+BUNDLED WITH
+   2.3.6
