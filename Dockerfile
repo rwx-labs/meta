@@ -30,16 +30,26 @@ RUN apt-get update \
 RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
   && chmod a+x /usr/local/bin/yt-dlp
 
+# Install the latest bundler version
+RUN gem install bundler
+
 # Copy all the project files.
 COPY . /meta
 COPY --from=builder /meta/vendor/ /meta/vendor/
+
+# Drop down to a lesser privileged user.
+RUN useradd -d /meta meta
+RUN chown -R meta:meta /meta
+
 WORKDIR /meta
 
 RUN bundle config set deployment 'true' \
   && bundle config set without 'development' \
-  && bundle install -j$(nproc)
+  && bundle install
 
 # Expose the RCON port
 EXPOSE 31337/tcp
+
+LABEL org.opencontainers.image.authors="Mikkel Kroman <mk@maero.dk>"
 
 ENTRYPOINT ["bundle", "exec", "blur", "-rblur-url_handling", "-rblur-text_helper"]
