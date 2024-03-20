@@ -54,6 +54,7 @@ GEM
     kramdown-parser-gfm (1.1.0)
       kramdown (~> 2.0)
     language_server-protocol (3.17.0.3)
+    net-dns (0.20.0)
     nokogiri (1.16.3-x86_64-linux)
       racc (~> 1.4)
     parallel (1.24.0)
@@ -112,6 +113,7 @@ PLATFORMS
 DEPENDENCIES
   blur (~> 3.0.pre.alpha)!
   httpx (~> 1.2)
+  net-dns (~> 0.20)
   nokogiri (~> 1.16)
   ordnet!
   solargraph

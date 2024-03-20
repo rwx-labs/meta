@@ -36,10 +36,12 @@ Blur::Script :ordnet do
   # Looks up the given +word+
   def query(word, parent: Async::Task.current)
     parent.async do
+      headers = {
+      }
       response = @http.get('https://ws.dsl.dk/ddo/query', params: { 'q' => word })
       response.raise_for_status
 
-      query = Ordnet::Query.new(response.body.read)
+      query = Ordnet::Query.new(response.body.to_s)
       query if query.success
     end
   end
