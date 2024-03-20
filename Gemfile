@@ -1,17 +1,16 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 
-# Project dependencies.
-gem 'blur', '~> 2.1.6'
-gem 'blur-text_helper', git: 'https://github.com/mkroman/blur-text_helper'
-gem 'blur-url_handling', git: 'https://github.com/mkroman/blur-url_handling.git'
+# General dependencies
+gem 'blur', '~> 3.0.pre.alpha', git: 'https://github.com/mkroman/blur', branch: 'main'
 
-## Script dependencies.
-gem 'em-http-request', '~> 1.1'
+gem 'httpx', '~> 1.2'
 
-# Required by multiple scripts.
-gem 'nokogiri', '~> 1.10'
+# # Required by multiple scripts.
+gem 'nokogiri', '~> 1.16'
 
-# Required by the ddo script.
+# # Required by the ddo script.
 gem 'ordnet', path: 'vendor/ordnet'
 
 group :development do

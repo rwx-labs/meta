@@ -1,4 +1,4 @@
-FROM ruby:2.7.5-slim-buster AS builder
+FROM ruby:3.3.0-slim-bookworm AS builder
 
 # Install build dependencies
 RUN apt-get update && \
@@ -19,11 +19,11 @@ RUN gem update bundler \
   && bundle install -j$(nproc)
 
 # Create the runtime image
-FROM ruby:2.7.5-slim-buster
+FROM ruby:3.3.0-slim-bookworm
 
 # Install runtime dependencies
 RUN apt-get update \
-  && apt-get install -y exiv2 exiftran libpcap0.8 libssl1.1 libsqlite3-0 ffmpeg curl python3 \
+  && apt-get install -y exiv2 exiftran libpcap0.8 libssl3 libsqlite3-0 ffmpeg curl python3 \
   && rm -rf /var/lib/apt/lists/*
 
 # Install yt-dlp
@@ -52,4 +52,4 @@ EXPOSE 31337/tcp
 
 LABEL org.opencontainers.image.authors="Mikkel Kroman <mk@maero.dk>"
 
-ENTRYPOINT ["bundle", "exec", "blur", "-rblur-url_handling", "-rblur-text_helper"]
+ENTRYPOINT ["bundle", "exec", "blur", "-l", "trace"]

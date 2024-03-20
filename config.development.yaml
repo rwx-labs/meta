@@ -1,0 +1,27 @@
+## Blur configuration file
+
+# Where to look for scripts to be loaded
+scripts_dir: scripts/
+
+## Network settings
+# Set up a list of networks to connect to on start
+networks:
+- hostname: irc.rwx.im
+  port: 6697
+  tls: true
+  nickname: meta-oss-dev
+  username: meta-oss-dev
+  realname: meta-oss-dev
+  channels:
+  - { name: "#blur-dev" }
+
+## Script settings
+scripts:
+  ## Admin authentication script settings
+  auth:
+    # Set default admins (this will be cached once the script has loaded at
+    # least once, after that it's no longer used as long as the cache exists.)
+    #
+    # The format is a hostmask, i.e. `<nick>!<ident>@<host>`
+    admins:
+    - mk!mk@rwx.im

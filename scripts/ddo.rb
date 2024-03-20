@@ -1,37 +1,58 @@
-# encoding: utf-8
+# frozen_string_literal: true
 
-require 'em-http-request'
+require 'httpx'
 
 require 'ordnet'
 
 Blur::Script :ordnet do
-  Author 'Mikkel Kroman <mk@maero.dk>'
-  Version '0.2'
-  Description "Query ordnet.dk's ddo database"
-
   include Blur::Commands
 
-  command! '.ddo' do |user, channel, args|
-    next send_usage_information channel unless args
+  Author 'Mikkel Kroman <mk@maero.dk>'
+  Version '1.0'
+  Description "Query ordnet.dk's ddo database"
 
-    query args do |success, result|
-      if success
-        channel.say format format_query_response result
-      else
-        channel.say format result
-      end
+  # Raised when a query returns no results.
+  class NoResultError < StandardError; end
+
+  def initialize
+    @http = HTTPX.with(:compression)
+  end
+
+  command! '.ddo' do |_user, channel, args, _tags|
+    return send_usage_information(channel) unless args
+
+    Async do |task|
+      result = query(args, parent: task).wait
+
+      return channel.say(format('No result')) unless result
+
+      formatted_query_response = format_query_response(result)
+      channel.say(format(formatted_query_response))
+    rescue HTTPX::HTTPError => e
+      channel.say(format("http error: #{e.status}"))
     end
   end
 
-  def format_query_response query
+  # Looks up the given +word+
+  def query(word, parent: Async::Task.current)
+    parent.async do
+      response = @http.get('https://ws.dsl.dk/ddo/query', params: { 'q' => word })
+      response.raise_for_status
+
+      query = Ordnet::Query.new(response.body.read)
+      query if query.success
+    end
+  end
+
+  def format_query_response(query)
     if query.definitions.any?
-      format_definition query, query.definitions.first
+      format_definition(query, query.definitions.first)
     else
-      format_idiom query, query.idioms.first
+      format_idiom(query, query.idioms.first)
     end
   end
 
-  def format_definition query, definition
+  def format_definition(query, definition)
     String.new.tap do |line|
       line << query.word
       line << " #{query.phonetic.strip}"
@@ -43,7 +64,7 @@ Blur::Script :ordnet do
     end
   end
 
-  def format_idiom query, definition
+  def format_idiom(query, definition)
     String.new.tap do |line|
       line << query.word
       line << " #{query.phonetic.strip}"
@@ -55,29 +76,11 @@ Blur::Script :ordnet do
     end
   end
 
-  def query word
-    http = EM::HttpRequest.new("https://ws.dsl.dk/ddo/query?q=#{URI.escape word}").get
-
-    http.callback do
-      query = Ordnet::Query.new http.response
-
-      if query.success
-        yield true, query
-      else
-        yield false, 'No results'
-      end
-    end
-
-    http.errback do
-      yield false, 'Connection error'
-    end
+  def send_usage_information(channel)
+    channel.say(format("Usage:\x0F .ddo <word>"))
   end
 
-  def send_usage_information channel
-    channel.say format "Usage:\x0F .ddo <word>"
-  end
-
-  def format message
-    %{\x0310>\x0F\x02 DDO:\x0F\x0310 #{message}}
+  def format(message)
+    %(\x0310>\x0F\x02 DDO:\x0F\x0310 #{message})
   end
 end
