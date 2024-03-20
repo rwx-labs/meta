@@ -11,6 +11,7 @@ gem 'httpx', '~> 1.2'
 gem 'net-dns', '~> 0.20', require: 'net/dns'
 # Used by the `r2` script
 gem 'aws-sdk-s3', '~> 1.146'
+gem 'activesupport', '~> 7.1'
 
 # # Required by multiple scripts.
 gem 'nokogiri', '~> 1.16'
