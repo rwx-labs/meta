@@ -117,4 +117,4 @@ jobs:
         git add .
         git commit -m "meta: Update to ${IMAGE_TAG}"
         git push
-      working-directory: ./meta/overlays/production
+      working-directory: ./meta/overlays/oss
