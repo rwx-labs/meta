@@ -7,6 +7,9 @@ gem 'blur', '~> 3.0.pre.alpha', git: 'https://github.com/mkroman/blur', branch: 
 
 gem 'httpx', '~> 1.2'
 
+# Used by the `dig' script
+gem 'net-dns', '~> 0.20', require: 'net/dns'
+
 # # Required by multiple scripts.
 gem 'nokogiri', '~> 1.16'
 
