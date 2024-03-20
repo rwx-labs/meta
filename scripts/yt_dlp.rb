@@ -10,7 +10,7 @@ Blur::Script :yt_dlp do
   Description 'API to execute yt-dlp commands'
 
   # The default command to to run `yt-dlp`
-  DEFAULT_COMMAND = ['python', '-m', 'yt_dlp'].freeze
+  DEFAULT_COMMAND = ['python3', '-m', 'yt_dlp'].freeze
   # The default output container for videos
   DEFAULT_CONTAINER = 'mp4'
   # The default format to download
