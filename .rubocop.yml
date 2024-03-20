@@ -1,0 +1,14 @@
+Style/MethodDefParentheses:
+  Enabled: false
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.3
+
+Metrics/BlockLength:
+  AllowedPatterns: ['Script']
+Lint/ConstantDefinitionInBlock:
+  AllowedMethods: ['Script']
+
+Lint/ConstantDefinitionInBlock:
+  Enabled: false
