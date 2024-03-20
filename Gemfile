@@ -15,6 +15,9 @@ gem 'activesupport', '~> 7.1'
 gem 'oj', '~> 3.16'
 gem 'multi_json', '~> 1.15'
 
+# Used by the `spotify` script
+gem 'rspotify', '~> 2.12'
+
 # Used by the `tvmaze` script
 gem 'dotiw', '~> 5.3'
 
