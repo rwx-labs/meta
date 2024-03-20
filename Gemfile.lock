@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/mkroman/blur
-  revision: 5cd16a13c41bc03de56f6381b9a2a6b9bdc9da9a
+  revision: 927e58511cd9956e56a4c6a6103acfe84ad1cbe6
   branch: main
   specs:
     blur (3.0.0.pre.alpha)
