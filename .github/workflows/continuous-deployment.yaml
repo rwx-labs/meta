@@ -65,7 +65,7 @@ jobs:
       env:
         IRC_NETWORK: ${{ vars.IRC_NETWORK }}
         IRC_CHANNEL: ${{ vars.IRC_CHANNEL }}
-        META_WEBHOOK_TOKEN: ${{ secrets.META_WEBHOOK_TOKEN }}
+        META_WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_META_TOKEN }}
         MESSAGE: |-
           mk: meta-oss is pending deployment to production @ https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
       run: |
