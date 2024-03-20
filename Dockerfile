@@ -2,7 +2,7 @@ FROM ruby:3.3.0-slim-bookworm AS builder
 
 # Install build dependencies
 RUN apt-get update && \
-  apt-get install -y build-essential git-core libpcap-dev libssl-dev libsqlite3-dev
+  apt-get install -y build-essential git-core libssl-dev
 
 # Copy all the project files
 RUN mkdir -p /meta
@@ -23,12 +23,11 @@ FROM ruby:3.3.0-slim-bookworm
 
 # Install runtime dependencies
 RUN apt-get update \
-  && apt-get install -y exiv2 exiftran libpcap0.8 libssl3 libsqlite3-0 ffmpeg curl python3 \
+  && apt-get install --no-install-recommends -y libssl3 ffmpeg curl python3 python3-pip \
   && rm -rf /var/lib/apt/lists/*
 
 # Install yt-dlp
-RUN curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /usr/local/bin/yt-dlp \
-  && chmod a+x /usr/local/bin/yt-dlp
+RUN python3 -m pip install --break-system-packages -U --pre yt-dlp
 
 # Install the latest bundler version
 RUN gem install bundler
@@ -46,9 +45,6 @@ WORKDIR /meta
 RUN bundle config set deployment 'true' \
   && bundle config set without 'development' \
   && bundle install
-
-# Expose the RCON port
-EXPOSE 31337/tcp
 
 LABEL org.opencontainers.image.authors="Mikkel Kroman <mk@maero.dk>"
 
