@@ -68,6 +68,9 @@ GEM
       json
     deep_merge (1.2.2)
     diff-lcs (1.5.1)
+    dotiw (5.3.3)
+      activesupport
+      i18n
     drb (2.2.1)
     e2mmap (0.1.0)
     fiber-annotation (0.2.0)
@@ -88,10 +91,13 @@ GEM
       kramdown (~> 2.0)
     language_server-protocol (3.17.0.3)
     minitest (5.22.3)
+    multi_json (1.15.0)
     mutex_m (0.2.0)
     net-dns (0.20.0)
     nokogiri (1.16.3-x86_64-linux)
       racc (~> 1.4)
+    oj (3.16.3)
+      bigdecimal (>= 3.0)
     parallel (1.24.0)
     parser (3.3.0.5)
       ast (~> 2.4.1)
@@ -151,9 +157,12 @@ DEPENDENCIES
   activesupport (~> 7.1)
   aws-sdk-s3 (~> 1.146)
   blur (~> 3.0.pre.alpha)!
+  dotiw (~> 5.3)
   httpx (~> 1.2)
+  multi_json (~> 1.15)
   net-dns (~> 0.20)
   nokogiri (~> 1.16)
+  oj (~> 3.16)
   ordnet!
   solargraph
 
