@@ -15,7 +15,7 @@ Blur::Script :ordnet do
   class NoResultError < StandardError; end
 
   def initialize
-    @http = HTTPX.with(:compression)
+    @http = HTTPX.with_timeout(total_timeout: 30)
   end
 
   command! '.ddo' do |_user, channel, args, _tags|

@@ -17,7 +17,7 @@ Blur::Script :tiktok do
   class TiktokError < StandardError; end
 
   def initialize
-    @http = HTTPX.with(:compression).with_timeout(total_timeout: 30)
+    @http = HTTPX.with_timeout(total_timeout: 30)
   end
 
   register_url!('www.tiktok.com') do |_user, channel, url|
