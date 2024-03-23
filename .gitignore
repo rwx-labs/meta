@@ -2,3 +2,4 @@
 cache/
 webm/
 .ruby-version
+.envrc
