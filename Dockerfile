@@ -1,51 +1,46 @@
-FROM ruby:3.3.0-slim-bookworm AS builder
+ARG RUBY_IMAGE=ruby:3.3.0-alpine
 
-# Install build dependencies
-RUN apt-get update && \
-  apt-get install -y build-essential git-core libssl-dev
+FROM ${RUBY_IMAGE} AS base
 
-# Copy all the project files
-RUN mkdir -p /meta
+RUN addgroup -g 1000 meta \
+  && adduser -u 1000 -G meta -D -h /meta meta
+
 WORKDIR /meta
 
-COPY Gemfile Gemfile.lock /meta/
-COPY vendor/ /meta/vendor/
+FROM base AS builder
+
+# Install build dependencies
+RUN apk add --no-cache git openssl-dev build-base
+
+# Copy all the project files
+USER meta
+
+COPY --chown=meta:meta Gemfile Gemfile.lock /meta/
+COPY --chown=meta:meta vendor/ /meta/vendor/
 
 # Install project dependencies and build native extensions in deployment mode
 # such that we only need the runtime libraries in the runtime container.
-RUN gem update bundler \
-  && bundle config set deployment 'true' \
-  && bundle config set without 'development' \
+RUN bundle config set --local deployment 'true' \
+  && bundle config set --local without 'development' \
   && bundle install -j$(nproc)
 
 # Create the runtime image
-FROM ruby:3.3.0-slim-bookworm
+FROM base
 
 # Install runtime dependencies
-RUN apt-get update \
-  && apt-get install --no-install-recommends -y libssl3 ffmpeg curl python3 python3-pip \
-  && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache openssl ffmpeg curl python3 py3-pip
+
+USER meta
 
 # Install yt-dlp
 RUN python3 -m pip install --break-system-packages -U --pre yt-dlp
 
-# Install the latest bundler version
-RUN gem install bundler
-
 # Copy all the project files.
-COPY . /meta
-COPY --from=builder /meta/vendor/ /meta/vendor/
+COPY --chown=meta:meta . /meta
+COPY --chown=meta:meta --from=builder /meta/vendor/bundle/ /meta/vendor/bundle/
 
-# Drop down to a lesser privileged user.
-RUN useradd -d /meta meta
-RUN chown -R meta:meta /meta
-
-WORKDIR /meta
-
-RUN bundle config set deployment 'true' \
-  && bundle config set without 'development' \
+RUN bundle config set --local deployment 'true' \
+  && bundle config set --local without 'development' \
   && bundle install
-
-LABEL org.opencontainers.image.authors="Mikkel Kroman <mk@maero.dk>"
 
 ENTRYPOINT ["bundle", "exec", "blur", "-l", "trace"]
