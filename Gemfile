@@ -23,6 +23,7 @@ gem 'dotiw', '~> 5.3'
 
 # # Required by multiple scripts.
 gem 'nokogiri', '~> 1.16'
+gem 'htmlentities', '~> 4.3'
 
 # # Required by the ddo script.
 gem 'ordnet', path: 'vendor/ordnet'

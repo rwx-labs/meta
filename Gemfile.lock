@@ -81,6 +81,7 @@ GEM
     fiber-annotation (0.2.0)
     fiber-local (1.0.0)
     hashie (5.0.0)
+    htmlentities (4.3.4)
     http-2-next (1.0.3)
     http-cookie (1.0.5)
       domain_name (~> 0.5)
@@ -206,6 +207,7 @@ DEPENDENCIES
   aws-sdk-s3 (~> 1.146)
   blur (~> 3.0.pre.alpha)!
   dotiw (~> 5.3)
+  htmlentities (~> 4.3)
   httpx (~> 1.2)
   multi_json (~> 1.15)
   net-dns (~> 0.20)
