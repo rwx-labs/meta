@@ -25,8 +25,14 @@ gem 'dotiw', '~> 5.3'
 gem 'nokogiri', '~> 1.16'
 gem 'htmlentities', '~> 4.3'
 
-# # Required by the ddo script.
+# Required by the ddo script.
 gem 'ordnet', path: 'vendor/ordnet'
+
+# Required by scripts with CLI-like argument parsing.
+gem 'optimist', '~> 3.1'
+
+# Required by scripts that allow fuzzy-matching.
+gem 'fuzzy_match', '~> 2.1'
 
 group :development do
   gem 'solargraph'

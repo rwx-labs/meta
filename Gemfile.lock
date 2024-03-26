@@ -80,6 +80,7 @@ GEM
       net-http
     fiber-annotation (0.2.0)
     fiber-local (1.0.0)
+    fuzzy_match (2.1.0)
     hashie (5.0.0)
     htmlentities (4.3.4)
     http-2-next (1.0.3)
@@ -130,6 +131,7 @@ GEM
     omniauth-oauth2 (1.8.0)
       oauth2 (>= 1.4, < 3)
       omniauth (~> 2.0)
+    optimist (3.1.0)
     parallel (1.24.0)
     parser (3.3.0.5)
       ast (~> 2.4.1)
@@ -207,12 +209,14 @@ DEPENDENCIES
   aws-sdk-s3 (~> 1.146)
   blur (~> 3.0.pre.alpha)!
   dotiw (~> 5.3)
+  fuzzy_match (~> 2.1)
   htmlentities (~> 4.3)
   httpx (~> 1.2)
   multi_json (~> 1.15)
   net-dns (~> 0.20)
   nokogiri (~> 1.16)
   oj (~> 3.16)
+  optimist (~> 3.1)
   ordnet!
   rspotify (~> 2.12)
   solargraph
