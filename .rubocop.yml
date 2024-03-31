@@ -6,6 +6,8 @@ Metrics/BlockLength:
   AllowedPatterns: ['Script']
 Lint/ConstantDefinitionInBlock:
   AllowedMethods: ['Script']
+Metrics/MethodLength:
+  Max: 25
 
 Lint/ConstantDefinitionInBlock:
   Enabled: false
