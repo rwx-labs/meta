@@ -7,21 +7,27 @@ Blur::Script :string_utils do
   Version '1.0'
   Description 'String utillities such as string length, reversing, etc.'
 
-  # Usage: .reverse <string>
-  command!('.reverse') do |_user, channel, args, _tags|
-    return channel.say(format(usage('.reverse <string>'))) unless args
+  # Usage: .rev <string>
+  #
+  # Reverses the string.
+  command!('.rev') do |_user, channel, args, _tags|
+    return channel.say(format(usage('.rev <string>'))) unless args
 
     channel.say(format(args.reverse))
   end
 
-  # Usage: .length <string>
+  # Usage: .len <string>
+  #
+  # Returns the number of characters in the string.
   command!('.len') do |_user, channel, args, _tags|
-    return channel.say(format(usage('.length <string>'))) unless args
+    return channel.say(format(usage('.len <string>'))) unless args
 
     channel.say(format(args.length))
   end
 
   # Usage: .b <string>
+  #
+  # Converts the string from UTF-8 to ASCII-8BIT.
   command!('.b') do |_user, channel, args, _tags|
     return channel.say(format(usage('.b <chars..>'))) unless args
 
@@ -46,7 +52,7 @@ Blur::Script :string_utils do
   #
   # Returns the integer ordinal for each of the characters.
   command!('.ord') do |_user, channel, args, _tags|
-    return channel.say(format(usage('.ord <chars..>'))) if params.nil? || params.length < 2
+    return channel.say(format(usage('.ord <chars..>'))) unless args
 
     result = args.chars.map(&:ord).join(', ')
 
@@ -57,7 +63,7 @@ Blur::Script :string_utils do
   #
   # Returns the UTF-8 codepoints for each of the characters.
   command!('.codepoints') do |_user, channel, args, _tags|
-    return channel.say(format(usage('.codepoints <chars..>'))) if params.nil? || params.length < 2
+    return channel.say(format(usage('.codepoints <chars..>'))) unless args
 
     input = args.force_encoding('UTF-8')
     result = input.codepoints.join(', ')
