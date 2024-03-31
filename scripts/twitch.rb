@@ -31,18 +31,16 @@ Blur::Script :twitch do
   end
 
   register_url!('twitch.tv', 'www.twitch.tv') do |_user, channel, url|
-    Async do
-      case url.path
-      when CLIP_URL_PATTERN
-        clip_id = Regexp.last_match('clip_id')
-        describe_twitch_clip!(channel, clip_id)
-      when VIDEO_URL_PATTERN
-        video_id = Regexp.last_match('video_id')
-        describe_twitch_video!(channel, video_id)
-      when CHANNEL_URL_PATTERN
-        channel_name = Regexp.last_match('channel')
-        describe_twitch_stream!(channel, channel_name)
-      end
+    case url.path
+    when CLIP_URL_PATTERN
+      clip_id = Regexp.last_match('clip_id')
+      describe_twitch_clip!(channel, clip_id)
+    when VIDEO_URL_PATTERN
+      video_id = Regexp.last_match('video_id')
+      describe_twitch_video!(channel, video_id)
+    when CHANNEL_URL_PATTERN
+      channel_name = Regexp.last_match('channel')
+      describe_twitch_stream!(channel, channel_name)
     end
   end
 
@@ -72,7 +70,7 @@ Blur::Script :twitch do
   # @note This method is blocking and needs to run inside a thread.
   def describe_twitch_clip!(recipient, clip_id)
     Async do |task|
-      clip = get_clip_by_id(clip_id).wait
+      clip = get_clip_by_id(clip_id, parent: task).wait
 
       if (clip = clip['data']&.first)
         title = clip['title']
@@ -182,16 +180,17 @@ Blur::Script :twitch do
       @access_token = json['access_token']
       cache['access_token'] = @access_token
       cache.save
+      logger.debug('refreshed access token')
     end
   end
 
   # Sends a GET request to the API endpoint with given +args+.
-  def get(path, http: nil, parent: Async::Task.current, **kwargs)
+  def get(path, http: nil, headers: request_headers, parent: Async::Task.current, **kwargs)
     url = BASE_URL + path # :D~
     retries = 0
 
     parent.async do
-      response = (http.nil? ? @http : http).get(url, **kwargs)
+      response = (http.nil? ? @http : http).get(url, headers:, **kwargs)
 
       case response.status
       when 200
@@ -204,9 +203,11 @@ Blur::Script :twitch do
         raise RequestError, "unexpected response code #{response.status}"
       end
     rescue UnauthenticatedError
+      logger.debug('request requires authorization, refreshing access token')
+
       if retries < 1
-        refresh_access_token!
-        args[:headers] = request_headers
+        refresh_access_token!.wait
+        headers['Authorization'] = "Bearer #{@access_token}" if @access_token
         retries += 1
         retry
       end
