@@ -12,6 +12,12 @@ GIT
       semantic_logger (~> 4.15)
 
 PATH
+  remote: vendor/mk-imdb
+  specs:
+    mk-imdb (0.4.2)
+      nokogiri (~> 1.8)
+
+PATH
   remote: vendor/ordnet
   specs:
     ordnet (0.1)
@@ -212,6 +218,7 @@ DEPENDENCIES
   fuzzy_match (~> 2.1)
   htmlentities (~> 4.3)
   httpx (~> 1.2)
+  mk-imdb!
   multi_json (~> 1.15)
   net-dns (~> 0.20)
   nokogiri (~> 1.16)
