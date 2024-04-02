@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/mkroman/blur
-  revision: 927e58511cd9956e56a4c6a6103acfe84ad1cbe6
+  revision: d7a083fe3c384c979b3f2c9004c296f37c355234
   branch: main
   specs:
     blur (3.0.0.pre.alpha)
@@ -39,16 +39,16 @@ GEM
     addressable (2.8.6)
       public_suffix (>= 2.0.2, < 6.0)
     ast (2.4.2)
-    async (2.9.0)
+    async (2.10.1)
       console (~> 1.10)
       fiber-annotation
       io-event (~> 1.5, >= 1.5.1)
       timers (~> 4.1)
-    async-io (1.41.0)
+    async-io (1.42.0)
       async
     aws-eventstream (1.3.0)
-    aws-partitions (1.899.0)
-    aws-sdk-core (3.191.4)
+    aws-partitions (1.905.0)
+    aws-sdk-core (3.191.5)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.651.0)
       aws-sigv4 (~> 1.8)
@@ -56,7 +56,7 @@ GEM
     aws-sdk-kms (1.78.0)
       aws-sdk-core (~> 3, >= 3.191.0)
       aws-sigv4 (~> 1.1)
-    aws-sdk-s3 (1.146.0)
+    aws-sdk-s3 (1.146.1)
       aws-sdk-core (~> 3, >= 3.191.0)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.8)
@@ -144,7 +144,7 @@ GEM
       racc
     public_suffix (5.0.4)
     racc (1.7.3)
-    rack (3.0.9.1)
+    rack (3.0.10)
     rack-protection (4.0.0)
       base64 (>= 0.1.0)
       rack (>= 3.0.0, < 4)
@@ -204,7 +204,7 @@ GEM
       concurrent-ruby (~> 1.0)
     unicode-display_width (2.5.0)
     uri (0.13.0)
-    version_gem (1.1.3)
+    version_gem (1.1.4)
     yard (0.9.36)
 
 PLATFORMS
@@ -213,7 +213,7 @@ PLATFORMS
 DEPENDENCIES
   activesupport (~> 7.1)
   aws-sdk-s3 (~> 1.146)
-  blur (~> 3.0.pre.alpha)!
+  blur (~> 3.0.0pre.alpha)!
   dotiw (~> 5.3)
   fuzzy_match (~> 2.1)
   htmlentities (~> 4.3)
