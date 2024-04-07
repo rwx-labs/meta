@@ -25,7 +25,7 @@ Blur::Script :github do
       if result
         channel.say(format_repo_details(result))
       else
-        logger.debug('result:', result)
+        channel.say(format('No results'))
       end
     rescue HTTPX::HTTPError => e
       channel.say(format("http error #{e.status}"))
