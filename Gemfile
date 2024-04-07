@@ -37,6 +37,12 @@ gem 'optimist', '~> 3.1'
 # Required by scripts that allow fuzzy-matching.
 gem 'fuzzy_match', '~> 2.1'
 
+
+# Used by the `unicode-utils` script
+gem 'unicode-categories', '~> 1.9'
+gem 'unicode-name', '~> 1.12'
+gem 'unicode-sequence_name', '~> 1.13'
+
 group :development do
   gem 'solargraph'
 end
