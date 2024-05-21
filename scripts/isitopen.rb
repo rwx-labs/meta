@@ -48,15 +48,15 @@ Blur::Script :isitopen do
 
   def extract_request(message, my_name)
     request = case message
-              when /^#{my_name}[,:] hvornår åbner (?<place>.*?)\?/,
-                   /^#{my_name}[,:] hvad tid åbner (?<place>.*?)\?/
+              when /^#{my_name}[,:] hvornår åbner (?<place>.*?)\?/i,
+                   /^#{my_name}[,:] hvad tid åbner (?<place>.*?)\?/i
                 OPENING_TIME
-              when /^#{my_name}[,:] hvornår lukker (?<place>.*?)\?/,
-                   /^#{my_name}[,:] hvad tid lukker (?<place>.*?)\?/
+              when /^#{my_name}[,:] hvornår lukker (?<place>.*?)\?/i,
+                   /^#{my_name}[,:] hvad tid lukker (?<place>.*?)\?/i
                 CLOSING_TIME
-              when /^#{my_name}[,:] (har|er) (?<place>.*?) åbent?\?/
+              when /^#{my_name}[,:] (har|er) (?<place>.*?) åbent?\?/i
                 IS_OPEN
-              when /^#{my_name}[,:] (har|er) (?<place>.*?) lukket\?/
+              when /^#{my_name}[,:] (har|er) (?<place>.*?) lukket\?/i
                 IS_CLOSED
               end
 
