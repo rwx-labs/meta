@@ -33,7 +33,7 @@ RUN apk add --no-cache openssl ffmpeg curl python3 py3-pip git
 USER meta
 
 # Install yt-dlp
-RUN python3 -m pip install --break-system-packages -U git+https://github.com/yt-dlp/yt-dlp
+RUN python3 -m pip install --break-system-packages -U --pre "yt-dlp[default]"
 
 # Copy all the project files.
 COPY --chown=meta:meta . /meta
