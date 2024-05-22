@@ -94,7 +94,7 @@ Blur::Script :tiktok do
   rescue HTTPX::ConnectTimeoutError => _e
     channel.say("\x0310> HTTP connection timed out")
   rescue StandardError => e
-    logger.error("Error", e)
+    logger.error('Error', e)
     channel.say("\x0310> Error: #{e}")
   end
 
@@ -154,8 +154,7 @@ Blur::Script :tiktok do
     script(:yt_dlp).download(
       video_url.to_s,
       format: 'bestvideo*[vcodec=h264]+bestaudio*',
-      extra_args: ['--merge-output-format', 'mp4',
-                   '--extractor-args', 'tiktok:api_hostname=api16-normal-c-useast1a.tiktokv.com;app_info=7355728856979392262'],
+      extra_args: ['--merge-output-format', 'mp4'],
       **opts,
       &block
     )
