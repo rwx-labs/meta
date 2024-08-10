@@ -130,7 +130,7 @@ Blur::Script :howlongtobeat do
     }
 
     parent.async do
-      response = @http.post('https://howlongtobeat.com/api/search', json: payload, headers:)
+      response = @http.post('https://howlongtobeat.com/api/search/5683ebd079f1c360', json: payload, headers:)
       return unless response.status == 200
 
       data = response.json
