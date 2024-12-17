@@ -105,7 +105,8 @@ Blur::Script :howlongtobeat do
           'gameplay' => {
             'perspective' => '',
             'flow' => '',
-            'genre' => ''
+            'genre' => '',
+            'difficulty' => ''
           },
           'rangeYear' => {
             'min' => '',
@@ -122,7 +123,8 @@ Blur::Script :howlongtobeat do
         'filter' => '',
         'sort' => 0,
         'randomizer' => 0
-      }
+      },
+      'useCache': true
     }
     headers = {
       'referer' => 'https://howlongtobeat.com',
