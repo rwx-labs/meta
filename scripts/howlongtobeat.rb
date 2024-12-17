@@ -126,11 +126,11 @@ Blur::Script :howlongtobeat do
     }
     headers = {
       'referer' => 'https://howlongtobeat.com',
-      'user-agent' => 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:109.0) Gecko/20100101 Firefox/116.0'
+      'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0'
     }
 
     parent.async do
-      response = @http.post('https://howlongtobeat.com/api/search/7b0f03b254cc3099', json: payload, headers:)
+      response = @http.post('https://howlongtobeat.com/api/find/7622125a648b9bb7', json: payload, headers:)
       next unless response.status == 200
 
       data = response.json
