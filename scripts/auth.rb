@@ -26,11 +26,11 @@ Blur::Script :auth do
     end
   end
 
-  # Send list of commands once connected.
+  # Authenticate with NickServ if a password is provided.
   def connection_ready(network)
-    @commands.each do |command|
-      network.transmit(command)
-    end
+    password = ENV.fetch('NICKSERV_PASSWORD', nil)
+
+    network.say('NICKSERV', "IDENTIFY #{password}") if password
   end
 
   register! :connection_ready
