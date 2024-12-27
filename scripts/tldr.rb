@@ -86,8 +86,8 @@ Blur::Script :tldr do
       return channel.say(format('Could not summarize contents')) if data.nil? || data.empty?
 
       markdown = data['markdown']
-      markdown.each_line do |line|
-        channel.say(format(line.strip))
+      markdown.each_line.lazy.map(&:strip).each do |line|
+        channel.say(format(line)) unless line.empty?
       end
     rescue Error => e
       channel.say(format("Error:\x0f #{e}"))
@@ -101,7 +101,6 @@ Blur::Script :tldr do
   rescue Error => e
     channel.say(format("Error:\x0f #{e.message}"))
   end
-
 
   # This is an argument parser for the `.tldr` command.
   ArgumentParser = Optimist::Parser.new do
