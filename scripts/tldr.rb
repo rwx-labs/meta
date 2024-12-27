@@ -84,8 +84,8 @@ Blur::Script :tldr do
     @token = @config['token'] || ENV.fetch('KAGI_SESSION_TOKEN', nil)
     raise "`token' (or KAGI_SESSION_TOKEN) is not set" unless @token
 
-    @anthropic_api_key = @config['anthropic_api_key'] || ENV.fetch('ANTHROPIC_API_KEY', nil)
-    raise "`anthropic_api_key' (or ANTHROPIC_API_KEY) is not set" unless @anthropic_api_key
+    @google_ai_key = @config['google_ai_key'] || ENV.fetch('GOOGLE_AI_KEY', nil)
+    raise "`google_ai_key' (or GOOGLE_AI_KEY) is not set" unless @google_ai_key
 
     @http = HTTPX.with_timeout(total_timeout: 60)
   end
@@ -147,7 +147,6 @@ Blur::Script :tldr do
       logger.info("requesting #{summary_type} for url #{url} using language #{target_language}")
 
       response = @http.post(SUMMARY_API_URL, params:, headers:)
-      logger.debug("response: #{response.inspect}")
 
       response.raise_for_status
       process_summary_response(response)
@@ -159,11 +158,12 @@ Blur::Script :tldr do
       response = request_resummary(summary).wait
 
       json = response&.json
-      return unless json&.key?('content')
+      candidates = json['candidates']
+      raise UnexpectedResponseError, "no candidates" unless candidates
 
-      content = json['content']
-      text_content = content.filter { |c| c['type'] == 'text' }
-      text = text_content.map { |c| c['text'] }.join($INPUT_RECORD_SEPARATOR)
+      content = candidates.find { |candidate| candidate.key?('content') }['content']
+      text_parts = content['parts'].select { |part| part.key?('text') }
+      text = text_parts.map { |part| part['text'] }.join($INPUT_RECORD_SEPARATOR)
 
       if text =~ %r{<short_summary>(.*?)</short_summary>}mi
         Regexp.last_match(1)
@@ -178,18 +178,17 @@ Blur::Script :tldr do
     Async do
       prompt = RESUMMARIZE_PROMPT.gsub('{{LONG_SUMMARY}}', summary)
       request = {
-        'model' => 'claude-3-5-haiku-latest',
-        'max_tokens' => 1024,
-        'messages' => [
-          { 'role' => 'user', 'content' => [{ type: 'text', text: prompt }] }
-        ]
+        'contents' => [
+            { 'role' => 'user', 'parts' => [{ text: prompt }] }
+          ],
+          'generationConfig' => {
+            'maxOutputTokens' => 1024
+          }
       }
-      headers = {
-        'anthropic-version' => '2023-06-01',
-        'x-api-key' => @anthropic_api_key,
-        'content-type' => 'application/json'
+      params = {
+        'key' => @google_ai_key
       }
-      response = @http.post('https://api.anthropic.com/v1/messages', json: request, headers:)
+      response = @http.post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent', json: request, params:)
       response.raise_for_status
       response
     end
