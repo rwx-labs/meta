@@ -126,7 +126,21 @@ GEM
     net-http (0.6.0)
       uri
     netrc (0.11.0)
+    nokogiri (1.18.0-aarch64-linux-gnu)
+      racc (~> 1.4)
+    nokogiri (1.18.0-aarch64-linux-musl)
+      racc (~> 1.4)
+    nokogiri (1.18.0-arm-linux-gnu)
+      racc (~> 1.4)
+    nokogiri (1.18.0-arm-linux-musl)
+      racc (~> 1.4)
+    nokogiri (1.18.0-arm64-darwin)
+      racc (~> 1.4)
+    nokogiri (1.18.0-x86_64-darwin)
+      racc (~> 1.4)
     nokogiri (1.18.0-x86_64-linux-gnu)
+      racc (~> 1.4)
+    nokogiri (1.18.0-x86_64-linux-musl)
       racc (~> 1.4)
     oauth2 (2.0.9)
       faraday (>= 0.17.3, < 3.0)
@@ -224,7 +238,14 @@ GEM
     yard (0.9.37)
 
 PLATFORMS
-  x86_64-linux
+  aarch64-linux-gnu
+  aarch64-linux-musl
+  arm-linux-gnu
+  arm-linux-musl
+  arm64-darwin
+  x86_64-darwin
+  x86_64-linux-gnu
+  x86_64-linux-musl
 
 DEPENDENCIES
   activesupport (~> 7.1)
@@ -248,4 +269,4 @@ DEPENDENCIES
   unicode-sequence_name (~> 1.13)
 
 BUNDLED WITH
-   2.3.6
+   2.6.2
