@@ -53,6 +53,24 @@ Blur::Script :tldr do
     'Chinese (simplified)' => 'ZH',
     'Chinese (traditional)' => 'ZH-HANT'
   }.freeze
+  RESUMMARIZE_PROMPT = <<-PROMPT
+    You will be given a long summary of an article or news story. Your task is to create a shorter, more concise summary that captures the essential information.
+
+    Here is the long summary:
+    <long_summary>
+    {{LONG_SUMMARY}}
+    </long_summary>
+
+    To create the shorter summary:
+    1. Identify the main topic or event described in the long summary.
+    2. Determine the key actors or parties involved.
+    3. Highlight the most important facts or developments.
+    4. Include any significant outcomes or implications.
+
+    Your summary should be approximately 1 sentence long. Aim for clarity and brevity while maintaining the core message of the original summary.
+
+    Write the summary using a <short_summary> tag.
+  PROMPT
 
   class Error < StandardError; end
   class RequestError < Error; end
@@ -65,6 +83,9 @@ Blur::Script :tldr do
   def initialize
     @token = @config['token'] || ENV.fetch('KAGI_SESSION_TOKEN', nil)
     raise "`token' (or KAGI_SESSION_TOKEN) is not set" unless @token
+
+    @anthropic_api_key = @config['anthropic_api_key'] || ENV.fetch('ANTHROPIC_API_KEY', nil)
+    raise "`anthropic_api_key' (or ANTHROPIC_API_KEY) is not set" unless @anthropic_api_key
 
     @http = HTTPX.with_timeout(total_timeout: 60)
   end
@@ -86,7 +107,9 @@ Blur::Script :tldr do
       return channel.say(format('Could not summarize contents')) if data.nil? || data.empty?
 
       markdown = data['markdown']
-      markdown.each_line.lazy.map(&:strip).each do |line|
+      summary = resummarize(markdown).wait
+
+      summary.to_s.each_line.lazy.map(&:strip).each do |line|
         channel.say(format(line)) unless line.empty?
       end
     rescue Error => e
@@ -128,6 +151,47 @@ Blur::Script :tldr do
 
       response.raise_for_status
       process_summary_response(response)
+    end
+  end
+
+  def resummarize(summary)
+    Async do
+      response = request_resummary(summary).wait
+
+      json = response&.json
+      return unless json&.key?('content')
+
+      content = json['content']
+      text_content = content.filter { |c| c['type'] == 'text' }
+      text = text_content.map { |c| c['text'] }.join($INPUT_RECORD_SEPARATOR)
+
+      if text =~ %r{<short_summary>(.*?)</short_summary>}mi
+        Regexp.last_match(1)
+      else
+        text
+      end
+    end
+  end
+
+  # Send a request to have Claude resummarize the summary.
+  def request_resummary(summary)
+    Async do
+      prompt = RESUMMARIZE_PROMPT.gsub('{{LONG_SUMMARY}}', summary)
+      request = {
+        'model' => 'claude-3-5-haiku-latest',
+        'max_tokens' => 1024,
+        'messages' => [
+          { 'role' => 'user', 'content' => [{ type: 'text', text: prompt }] }
+        ]
+      }
+      headers = {
+        'anthropic-version' => '2023-06-01',
+        'x-api-key' => @anthropic_api_key,
+        'content-type' => 'application/json'
+      }
+      response = @http.post('https://api.anthropic.com/v1/messages', json: request, headers:)
+      response.raise_for_status
+      response
     end
   end
 
