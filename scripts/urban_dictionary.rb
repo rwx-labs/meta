@@ -16,6 +16,11 @@ Blur::Script :urban_dictionary do
 
   command!('.ud') do |_user, channel, args, _tags|
     Async do
+      if args.strip.casecmp('georgehale').zero?
+        hardcoded_output = "Term:\x0F GEORGEHALE\x0310 Definition:\x0F Icelandic sheep fucker.\x0310"
+        channel.say(format(hardcoded_output))
+        next
+      end
       results = search(args).wait
       result = results&.first
 
