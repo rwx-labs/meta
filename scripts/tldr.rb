@@ -78,6 +78,8 @@ Write the summary according to the given user prompt, using a <short_summary> ta
   DEFAULT_USER_PROMPT = <<-PROMPT
 Write the summary in a single sentence.
   PROMPT
+  # Maximum number of lines to print of a summary.
+  NUM_MAX_LINES = 10
 
   class Error < StandardError; end
   class RequestError < Error; end
@@ -117,7 +119,7 @@ Write the summary in a single sentence.
       markdown = data['markdown']
       summary = resummarize(markdown, prompt || DEFAULT_USER_PROMPT).wait
 
-      summary.to_s.each_line.lazy.map(&:strip).each do |line|
+      summary.to_s.each_line.lazy.map(&:strip).take(NUM_MAX_LINES).each do |line|
         channel.say(format(line)) unless line.empty?
       end
     rescue Error => e
