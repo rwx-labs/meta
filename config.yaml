@@ -9,7 +9,7 @@ networks:
 - hostname: irc.rwx.im
   port: 6697
   tls: true
-  nickname: meta-oss
+  nickname: moss
   channels:
   - { name: "#uplink" }
 
