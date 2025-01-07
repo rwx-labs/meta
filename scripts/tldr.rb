@@ -2,6 +2,7 @@
 
 require 'httpx'
 require 'optimist'
+require 'shellwords'
 require 'multi_json'
 require 'fuzzy_match'
 require 'semantic_logger'
@@ -54,22 +55,28 @@ Blur::Script :tldr do
     'Chinese (traditional)' => 'ZH-HANT'
   }.freeze
   RESUMMARIZE_PROMPT = <<-PROMPT
-    You will be given a long summary of an article or news story. Your task is to create a shorter, more concise summary that captures the essential information.
+You will be given a long summary of an article or news story. Your task is to create a shorter, more concise summary that captures the essential information.
 
-    Here is the long summary:
-    <long_summary>
-    {{LONG_SUMMARY}}
-    </long_summary>
+Here is the long summary:
+<long_summary>
+{{LONG_SUMMARY}}
+</long_summary>
 
-    To create the shorter summary:
-    1. Identify the main topic or event described in the long summary.
-    2. Determine the key actors or parties involved.
-    3. Highlight the most important facts or developments.
-    4. Include any significant outcomes or implications.
+This is a prompt provided by the user:
+<user_prompt>
+{{USER_PROMPT}}
+</user_prompt>
 
-    Your summary should be approximately 1 sentence long. Aim for clarity and brevity while maintaining the core message of the original summary.
+To create the shorter summary:
+1. Identify the main topic or event described in the long summary.
+2. Determine the key actors or parties involved.
+3. Highlight the most important facts or developments.
+4. Include any significant outcomes or implications.
 
-    Write the summary using a <short_summary> tag.
+Write the summary according to the given user prompt, using a <short_summary> tag.
+  PROMPT
+  DEFAULT_USER_PROMPT = <<-PROMPT
+Write the summary in a single sentence.
   PROMPT
 
   class Error < StandardError; end
@@ -92,10 +99,11 @@ Blur::Script :tldr do
 
   # .tldr [OPTIONS] <url>
   command!('.tldr') do |_user, channel, args, _tags|
-    opts, url = parse_args(args)
+    opts, url, prompt = parse_args(args)
 
     logger.debug('opts:', opts)
     logger.debug('url:', url)
+    logger.debug('prompt:', prompt)
 
     summary_type = (opts[:takeway] ? 'takeaway' : 'summary')
     target_language = find_language_code_by_name_or_code(opts[:language])
@@ -107,7 +115,7 @@ Blur::Script :tldr do
       return channel.say(format('Could not summarize contents')) if data.nil? || data.empty?
 
       markdown = data['markdown']
-      summary = resummarize(markdown).wait
+      summary = resummarize(markdown, prompt || DEFAULT_USER_PROMPT).wait
 
       summary.to_s.each_line.lazy.map(&:strip).each do |line|
         channel.say(format(line)) unless line.empty?
@@ -128,7 +136,7 @@ Blur::Script :tldr do
   # This is an argument parser for the `.tldr` command.
   ArgumentParser = Optimist::Parser.new do
     banner <<~BANNER
-      Usage: .tldr [OPTIONS] <url>
+      Usage: .tldr [OPTIONS] <url> [prompt]
     BANNER
 
     opt :takeway, 'Generate a list of takeaway points instead of a summarization'
@@ -153,9 +161,9 @@ Blur::Script :tldr do
     end
   end
 
-  def resummarize(summary)
+  def resummarize(summary, user_prompt)
     Async do
-      response = request_resummary(summary).wait
+      response = request_resummary(summary, user_prompt).wait
 
       json = response&.json
       candidates = json['candidates']
@@ -174,9 +182,9 @@ Blur::Script :tldr do
   end
 
   # Send a request to have Claude resummarize the summary.
-  def request_resummary(summary)
+  def request_resummary(summary, user_prompt)
     Async do
-      prompt = RESUMMARIZE_PROMPT.gsub('{{LONG_SUMMARY}}', summary)
+      prompt = RESUMMARIZE_PROMPT.gsub('{{LONG_SUMMARY}}', summary).gsub('{{USER_PROMPT}}', user_prompt)
       request = {
         'contents' => [
             { 'role' => 'user', 'parts' => [{ text: prompt }] }
@@ -188,6 +196,7 @@ Blur::Script :tldr do
       params = {
         'key' => @google_ai_key
       }
+      logger.debug('request:', request)
       response = @http.post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent', json: request, params:)
       response.raise_for_status
       response
@@ -211,17 +220,22 @@ Blur::Script :tldr do
   #
   # @return [Hash, String] the parsed options and the argument url
   def parse_args(args)
-    args = args&.split || []
+    args = Shellwords.split(args) || []
     opts = ArgumentParser.parse(args)
 
     raise LanguageListNeeded if ['help', '?'].include?(opts[:language])
 
     url = args.shift
+    prompt = args.join(' ')
+
+    if prompt.empty?
+      prompt = DEFAULT_USER_PROMPT
+    end
 
     raise Optimist::HelpNeeded unless url
     raise InvalidURLError, 'The provided argument is not a valid URL' unless url.start_with?('http')
 
-    [opts, url]
+    [opts, url, prompt]
   end
 
   # Finds and returns the closest matching language code based on the languages
