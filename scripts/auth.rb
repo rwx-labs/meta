@@ -30,7 +30,7 @@ Blur::Script :auth do
   def connection_ready(network)
     password = ENV.fetch('NICKSERV_PASSWORD', nil)
 
-    network.say('NICKSERV', "IDENTIFY #{password}") if password
+    network.say('NICKSERV', "IDENTIFY meta-oss #{password}") if password
   end
 
   register! :connection_ready
