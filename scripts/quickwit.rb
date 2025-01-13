@@ -14,8 +14,8 @@ Blur::Script :tldr do
   Version '0.1'
   Description 'Interact with Quickwit search indices'
 
-  # QUICKWIT_BASE_URL = 'http://quickwit.quickwit-prod.svc.cluster.local:7280'
-  QUICKWIT_BASE_URL = 'http://localhost:7280'
+  QUICKWIT_BASE_URL = 'http://quickwit.quickwit-prod.svc.cluster.local:7280'
+  # QUICKWIT_BASE_URL = 'http://localhost:7280'
   INDEXES = ['dba-v1']
 
   class Error < StandardError; end
