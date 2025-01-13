@@ -14,8 +14,8 @@ Blur::Script :tldr do
   Version '0.1'
   Description 'Interact with Quickwit search indices'
 
-  QUICKWIT_BASE_URL = 'http://quickwit.quickwit-prod.svc.cluster.local:7280'
-  # QUICKWIT_BASE_URL = 'http://localhost:7280'
+  # QUICKWIT_BASE_URL = 'http://quickwit.quickwit-prod.svc.cluster.local:7280'
+  QUICKWIT_BASE_URL = 'http://localhost:7280'
   INDEXES = ['dba-v1']
 
   class Error < StandardError; end
@@ -42,6 +42,8 @@ Blur::Script :tldr do
 
       if result['num_hits'].zero?
         return channel.say(format('No hits'))
+      else
+        channel.say(format("Found\x0f #{result['num_hits']}\x0310 hits"))
       end
 
       result['hits'].each do |hit|
