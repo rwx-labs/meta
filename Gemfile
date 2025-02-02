@@ -6,6 +6,7 @@ source 'https://rubygems.org'
 gem 'blur', '~> 3.0.0pre.alpha', git: 'https://github.com/mkroman/blur', branch: 'main'
 
 gem 'httpx', '~> 1.2'
+gem 'brotli', '~> 0.6'
 
 # Used by the `dig' script
 gem 'net-dns', '~> 0.20', require: 'net/dns'
