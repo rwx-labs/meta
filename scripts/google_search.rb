@@ -2,7 +2,6 @@
 
 require 'httpx'
 require 'nokogiri'
-require 'htmlentities'
 require 'semantic_logger'
 
 Blur::Script :google_search do
@@ -18,11 +17,33 @@ Blur::Script :google_search do
 
   # An instance of a google search result.
   class Result
-    attr_accessor :url, :title
+    attr_accessor :url, :title, :content, :engines
 
     def initialize(title, url)
       @title = title
       @url = url
+      @engines = []
+    end
+
+    def self.from_article_element(element)
+      # Extract the title.
+      title_link = element.at('h3 a')
+
+      return unless title_link
+
+      title = title_link.text.strip
+      url = title_link.attr('href')
+
+      result = Result.new(title, url)
+      result.content = element.at('p.content')&.text&.strip
+      result.engines = element.css('div.engines span')&.map{|x| x.text.strip }
+
+      result
+    end
+
+    # Returns true if the result comes from the given `engine`.
+    def engine?(engine)
+      @engines.include?(engine)
     end
   end
 
@@ -35,10 +56,10 @@ Blur::Script :google_search do
 
     Async do
       results = search(args).wait
-      result = results&.first
+      result = results&.find{|x| x.engine?('google') }
 
       if result
-        logger.debug(result)
+        logger.debug(result.inspect)
         channel.say(format("#{result.title}\x0F - #{result.url}"))
       else
         channel.say(format('No results'))
@@ -54,19 +75,25 @@ Blur::Script :google_search do
 
   # Searches on google for +query+.
   def search(query, _options = {})
-    params = { 'q' => query, 'format' => 'json' }
+    params = { 'q' => query }
     request_url = "#{SEARXNG_BASE_URL}/search"
 
     Async do
       response = @http.post(request_url, form: params, headers:)
       response.raise_for_status
 
-      json = response.json
+      body = response.body.to_s
+      document = Nokogiri::HTML(body)
 
-      return [] unless json
-      return [] unless json.key?('results')
+      return [] unless document
 
-      search_results_from_json(json)
+      search_results_from_document(document)
+    end
+  end
+
+  def search_results_from_document(document)
+    document.css('article.result').map do |article|
+      Result.from_article_element(article)
     end
   end
 
