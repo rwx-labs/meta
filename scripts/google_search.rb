@@ -13,6 +13,9 @@ Blur::Script :google_search do
   Version '3.0'
   Description 'Google search integration'
 
+  # The base URL of the searxng instance to use.
+  SEARXNG_BASE_URL = 'https://searx.dresden.network'
+
   # An instance of a google search result.
   class Result
     attr_accessor :url, :title
@@ -52,7 +55,7 @@ Blur::Script :google_search do
   # Searches on google for +query+.
   def search(query, _options = {})
     params = { 'q' => query, 'format' => 'json' }
-    request_url = 'https://searx.sev.monster/search'
+    request_url = "https://#{SEARXNG_BASE_URL}/search"
 
     Async do
       response = @http.post(request_url, form: params, headers:)
