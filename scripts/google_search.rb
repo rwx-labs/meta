@@ -55,7 +55,7 @@ Blur::Script :google_search do
   # Searches on google for +query+.
   def search(query, _options = {})
     params = { 'q' => query, 'format' => 'json' }
-    request_url = "https://#{SEARXNG_BASE_URL}/search"
+    request_url = "#{SEARXNG_BASE_URL}/search"
 
     Async do
       response = @http.post(request_url, form: params, headers:)
