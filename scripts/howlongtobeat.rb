@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'uri'
+
 require 'httpx'
 require 'nokogiri'
 require 'active_support'
@@ -7,10 +9,14 @@ require 'active_support/core_ext/array/conversions'
 
 Blur::Script :howlongtobeat do
   include Blur::Commands
+  include SemanticLogger::Loggable
 
   Author 'Mikkel Kroman <mk@maero.dk>'
   Version '1.0'
   Description 'Adds commands to query howlongtobeat.com for game length estimations'
+
+  # The base URL of HowLongToBeat.com.
+  BASE_URL = URI('https://howlongtobeat.com')
 
   # Contains the completion times for a game title.
   class Game
@@ -83,6 +89,68 @@ Blur::Script :howlongtobeat do
     "#{hours.round} hours"
   end
 
+  # Requests the latests scripts from the site and tries to extract the API
+  # endpoint for search as they constantly change it.
+  def update_api_endpoint(parent: Async::Task.current)
+    logger.debug('updating api endpoint')
+
+    parent.async do |subtask|
+      response = @http.get(BASE_URL, headers: request_headers)
+      response.raise_for_status
+
+      body = response.body.to_s
+      document = Nokogiri::HTML(body)
+
+      break unless document
+
+      scripts = document.css('script[src]')
+      scripts_with_urls = nodes_with_absolute_url_attrs(scripts, 'src')
+      scripts_with_urls.each do |(_element, url)|
+        filename = File.basename(url.path)
+
+        next unless filename.start_with?('_app-') && filename.end_with?('.js')
+
+        logger.debug("requesting script #{url}")
+
+        if (endpoint = extract_api_endpoint(url, parent: subtask).wait)
+          @search_endpoint = endpoint
+          logger.debug("using search api endpoint #{@search_endpoint}")
+        end
+      end
+    end
+  end
+
+  def nodes_with_absolute_url_attrs(list, attribute = 'href')
+    list.map do |element|
+      value = element[attribute]
+      next unless value
+
+      if value.start_with?('/')
+        url = BASE_URL.dup
+        url.path = value
+
+        [element, url]
+      else
+        [element, URI(value)]
+      end
+    end
+  end
+
+  # Extracts the search API endpoint from the given javascript URL.
+  def extract_api_endpoint(url, parent: Async::Task.current)
+    parent.async do |_subtask|
+      response = @http.get(url, headers: request_headers)
+      response.raise_for_status
+
+      body = response.body.to_s
+
+      if body =~ /fetch\("([^"]+)"\.concat\("([^"]+)"\)\.concat\("([^"]+)"\)/
+        search_endpoint = "#{Regexp.last_match(1)}#{Regexp.last_match(2)}#{Regexp.last_match(3)}"
+        search_endpoint
+      end
+    end
+  end
+
   # Searches for and returns a list of games matching the query.
   def search(query, parent: Async::Task.current)
     # We use the original payload because the API is very finicky about the
@@ -124,15 +192,19 @@ Blur::Script :howlongtobeat do
         'sort' => 0,
         'randomizer' => 0
       },
-      'useCache': true
+      useCache: true
     }
-    headers = {
-      'referer' => 'https://howlongtobeat.com',
-      'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64; rv:133.0) Gecko/20100101 Firefox/133.0'
-    }
+    headers = request_headers.merge({ 'referer' => 'https://howlongtobeat.com' })
+
+    update_api_endpoint.wait
+
+    logger.debug('searching for title', title: query)
 
     parent.async do
-      response = @http.post('https://howlongtobeat.com/api/find/7622125a648b9bb7', json: payload, headers:)
+      request_url = BASE_URL.dup.tap do |url|
+        url.path = @search_endpoint
+      end
+      response = @http.post(request_url, json: payload, headers:)
       next unless response.status == 200
 
       data = response.json
@@ -140,5 +212,13 @@ Blur::Script :howlongtobeat do
 
       data['data']
     end
+  end
+
+  private
+
+  def request_headers
+    {
+      'user-agent' => 'Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0'
+    }
   end
 end

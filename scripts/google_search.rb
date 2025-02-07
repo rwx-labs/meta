@@ -172,7 +172,7 @@ Blur::Script :google_search do
       'Pragma' => 'no-cache',
       'Priority' => 'u=0, i',
       'Upgrade-Insecure-Requests' => '1',
-      'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_65; rv:134.0) Gecko/20100101 Firefox/134.0',
+      'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64; rv:135.0) Gecko/20100101 Firefox/135.0',
       'Accept-Language' => 'en-US,en;q=0.9,da-DK;q=0.8,da;q=0.7',
       'Accept-Encoding' => 'gzip, deflate'
     }
