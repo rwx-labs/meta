@@ -14,6 +14,10 @@ Blur::Script :google_search do
 
   # The base URL of the searxng instance to use.
   SEARXNG_BASE_URL = 'https://searx.dresden.network'
+  # List of stylesheet files that we know aren't used for bot detection.
+  KNOWN_STYLESHEETS = [
+    'searxng.min.css'
+  ].freeze
 
   # An instance of a google search result.
   class Result
@@ -36,7 +40,7 @@ Blur::Script :google_search do
 
       result = Result.new(title, url)
       result.content = element.at('p.content')&.text&.strip
-      result.engines = element.css('div.engines span')&.map{|x| x.text.strip }
+      result.engines = element.css('div.engines span')&.map { |x| x.text.strip }
 
       result
     end
@@ -51,12 +55,41 @@ Blur::Script :google_search do
     @http = HTTPX.with_timeout(total_timeout: 30)
   end
 
+  def request_link_token
+    Async do
+      logger.debug('Requesting base page from instance to look for link tokens')
+      response = @http.get(SEARXNG_BASE_URL, headers:)
+      response.raise_for_status
+
+      body = response.body.to_s
+      document = Nokogiri::HTML(body)
+
+      return unless document
+
+      stylesheets = document.css('head link[type="text/css"]')
+      stylesheet_urls = stylesheets.map do |stylesheet|
+        URI(stylesheet['href'])
+      end
+      possible_link_tokens = stylesheet_urls.reject { |url| KNOWN_STYLESHEETS.include?(File.basename(url.path)) }
+
+      request_url = URI(SEARXNG_BASE_URL)
+      possible_link_tokens.each do |link_token|
+        puts "link token path: #{link_token.path}"
+        request_url.path = link_token.path
+        logger.debug("requesting link token #{request_url}")
+        response = @http.get(request_url, headers:)
+        status = response.status
+        logger.warn("tried to request link token #{link_token} but response status was #{status}!") if status != 200
+      end
+    end
+  end
+
   command!('.g') do |_user, channel, args, _tags|
     return channel.say(format("Usage:\x0F .g <query>")) unless args
 
     Async do
       results = search(args).wait
-      result = results&.find{|x| x.engine?('google') }
+      result = results&.find { |x| x.engine?('google') }
 
       if result
         logger.debug(result.inspect)
@@ -73,21 +106,44 @@ Blur::Script :google_search do
     end
   end
 
+  class Redirected < StandardError; end
+
   # Searches on google for +query+.
   def search(query, _options = {})
-    params = { 'q' => query }
+    params = {
+      'q' => query,
+      'lang' => 'auto',
+      'safesearch' => '0',
+      'category_general' => '1',
+      'time_range' => ''
+    }
     request_url = "#{SEARXNG_BASE_URL}/search"
 
+    puts 'headers:', headers
+
     Async do
-      response = @http.post(request_url, form: params, headers:)
-      response.raise_for_status
+      num_retries = 0
 
-      body = response.body.to_s
-      document = Nokogiri::HTML(body)
+      begin
+        response = @http.post(request_url, form: params, headers:)
+        response.raise_for_status
 
-      return [] unless document
+        if response.status == 301
+          request_link_token.wait
+          num_retries += 1
+          raise Redirected unless num_retries >= 3
+        end
 
-      search_results_from_document(document)
+        body = response.body.to_s
+        puts body, response.headers.inspect
+        document = Nokogiri::HTML(body)
+
+        return [] unless document
+
+        search_results_from_document(document)
+      rescue Redirected
+        retry
+      end
     end
   end
 
@@ -110,9 +166,15 @@ Blur::Script :google_search do
   def headers
     {
       'DNT' => '1',
-      'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_64; rv:134.0) Gecko/20100101 Firefox/134.0',
-      'Accept-Language' => 'en-US,en;q=0.5',
-      'Accept-Encoding' => 'gzip, deflate',
+      'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+      'Cache-Control' => 'no-cache',
+      'Origin' => 'null',
+      'Pragma' => 'no-cache',
+      'Priority' => 'u=0, i',
+      'Upgrade-Insecure-Requests' => '1',
+      'User-Agent' => 'Mozilla/5.0 (X11; Linux x86_65; rv:134.0) Gecko/20100101 Firefox/134.0',
+      'Accept-Language' => 'en-US,en;q=0.9,da-DK;q=0.8,da;q=0.7',
+      'Accept-Encoding' => 'gzip, deflate'
     }
   end
 end
