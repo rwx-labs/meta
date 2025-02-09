@@ -119,8 +119,6 @@ Blur::Script :google_search do
     }
     request_url = "#{SEARXNG_BASE_URL}/search"
 
-    puts 'headers:', headers
-
     Async do
       num_retries = 0
 
@@ -128,14 +126,18 @@ Blur::Script :google_search do
         response = @http.post(request_url, form: params, headers:)
         response.raise_for_status
 
-        if response.status == 301
+        if response.status != 200
+          logger.debug('response is not 200', headers: response.headers, status: response.status)
+        end
+
+        if response.status == 302
           request_link_token.wait
           num_retries += 1
           raise Redirected unless num_retries >= 3
         end
 
         body = response.body.to_s
-        puts body, response.headers.inspect
+        logger.debug('received body', body:)
         document = Nokogiri::HTML(body)
 
         return [] unless document
