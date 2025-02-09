@@ -89,7 +89,8 @@ Blur::Script :google_search do
 
     Async do
       results = search(args).wait
-      result = results&.find { |x| x.engine?('google') }
+      logger.debug('results:', results)
+      result = results&.find { |x| x.engine?('google') || x.engine?('duckduckgo') }
 
       if result
         logger.debug(result.inspect)
