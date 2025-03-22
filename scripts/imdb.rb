@@ -36,7 +36,7 @@ Blur::Script :imdb do
     end
   end
 
-  register_url!('imdb.com', 'www.imdb.com') do |_, channel, url|
+  register_url!('imdb.com', 'www.imdb.com') do |_user, channel, url|
     Async do
       describe_title_to!(channel, Regexp.last_match(1)).wait if url.path =~ TITLE_PATTERN
     rescue StandardError => e
@@ -53,9 +53,10 @@ Blur::Script :imdb do
   def search(title)
     Async do
       query = "#{title} site:www.imdb.com/title/"
-      result = script(:google_search).search(query).wait&.first
+      results = script(:google_search).search(query).wait
+      result = results.find { |res| res&.url&.to_s =~ %r{^https?://www\.imdb\.com/title/(tt[\d]+)} }
 
-      return unless result&.url&.to_s =~ %r{^https?://www\.imdb\.com/title/(tt[\d]+)}
+      next unless result
 
       result.url.to_s
     end
