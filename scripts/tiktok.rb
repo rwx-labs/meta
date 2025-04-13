@@ -132,8 +132,8 @@ Blur::Script :tiktok do
 
   # Returns the public viewable url for the given +video_id+.
   def public_url_for_video(video_id)
-    public_url = URI('https://pub.rwx.im/~meta/tiktok.html')
-    public_url.query = video_id
+    public_url = URI('https://pub.rwx.im/tiktok')
+    public_url.fragment = video_id
     public_url
   end
 
