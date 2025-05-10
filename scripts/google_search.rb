@@ -85,6 +85,7 @@ Blur::Script :google_search do
   end
 
   command!('.g') do |_user, channel, args, _tags|
+    return
     return channel.say(format("Usage:\x0F .g <query>")) unless args
 
     Async do
