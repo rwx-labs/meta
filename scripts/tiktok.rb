@@ -54,7 +54,7 @@ Blur::Script :tiktok do
     end
 
     # Send a summary of the link to the channel
-    channel.say(format_video_oembed_summary(oembed))
+    # channel.say(format_video_oembed_summary(oembed))
 
     parent.async do |task|
       if (result = video_already_uploaded?(video_id).wait)
