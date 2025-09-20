@@ -26,12 +26,6 @@ gem 'dotiw', '~> 5.3'
 gem 'nokogiri', '~> 1.16'
 gem 'htmlentities', '~> 4.3'
 
-# Required by the ddo script.
-gem 'ordnet', path: 'vendor/ordnet'
-
-# Required by the imdb script.
-gem 'mk-imdb', path: 'vendor/mk-imdb'
-
 # Required by scripts with CLI-like argument parsing.
 gem 'optimist', '~> 3.1'
 
