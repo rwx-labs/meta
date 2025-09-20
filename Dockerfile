@@ -1,4 +1,4 @@
-ARG RUBY_IMAGE=ruby:3.4.1-alpine
+ARG RUBY_IMAGE=ruby:3.4.6-alpine
 
 FROM ${RUBY_IMAGE} AS base
 
@@ -16,7 +16,6 @@ RUN apk add --no-cache git openssl-dev build-base
 USER meta
 
 COPY --chown=meta:meta Gemfile Gemfile.lock /meta/
-COPY --chown=meta:meta vendor/ /meta/vendor/
 
 # Install project dependencies and build native extensions in deployment mode
 # such that we only need the runtime libraries in the runtime container.
@@ -37,7 +36,7 @@ RUN python3 -m pip install --break-system-packages -U --pre "yt-dlp[default]"
 
 # Copy all the project files.
 COPY --chown=meta:meta . /meta
-COPY --chown=meta:meta --from=builder /meta/vendor/bundle/ /meta/vendor/bundle/
+COPY --chown=meta:meta --from=builder /meta/vendor /meta/vendor
 
 RUN bundle config set --local deployment 'true' \
   && bundle config set --local without 'development' \
