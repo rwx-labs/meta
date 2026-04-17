@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'etc'
+
 Blur::Script :health do
   include Blur::Commands
 
@@ -8,7 +10,7 @@ Blur::Script :health do
   Description 'Monitor the current resource usage'
 
   def initialize
-    @page_size = `getconf PAGESIZE`.to_f
+    @page_size = Etc.sysconf(Etc::SC_PAGESIZE)
   end
 
   command!('.health') do |_user, channel, _args, _tags|
