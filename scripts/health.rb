@@ -7,6 +7,10 @@ Blur::Script :health do
   Version '0.4'
   Description 'Monitor the current resource usage'
 
+  def initialize
+    @page_size = `getconf PAGESIZE`.to_f
+  end
+
   command!('.health') do |_user, channel, _args, _tags|
     channel.say(format("#{memory_summary} #{thread_summary} Scripts:\x0F #{_client_ref.scripts.count}\x0310"))
   end
@@ -30,8 +34,11 @@ Blur::Script :health do
   end
 
   def memory_usage
-    rss, vsz = %x{ps -o rss=,vsz= -p #{Process.pid}}.split
+    statm = File.read('/proc/self/statm').split
 
-    { vsz: vsz.to_f / 1000, rss: rss.to_f / 1000 }
+    vsz = statm[0].to_f * @page_size / 1024 / 1024
+    rss = statm[1].to_f * @page_size / 1024 / 1024
+
+    { vsz: vsz, rss: rss }
   end
 end
