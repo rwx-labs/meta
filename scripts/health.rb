@@ -30,7 +30,7 @@ Blur::Script :health do
   end
 
   def memory_usage
-    rss, vsz = `ps -o rss=,vsz= -p #{Process.pid}`.split
+    rss, vsz = %x{ps -o rss=,vsz= -p #{Process.pid}}.split
 
     { vsz: vsz.to_f / 1000, rss: rss.to_f / 1000 }
   end
